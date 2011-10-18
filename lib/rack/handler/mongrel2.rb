@@ -1,4 +1,5 @@
 require 'mongrel2/connection'
+require 'mongrel2/thread_pool'
 require 'stringio'
 
 module Rack
@@ -15,8 +16,11 @@ module Rack
 
         running = true
 
+        @thread_pool = ThreadPool.new(options[:pool_size] || 10) if options[:threaded]
+
         %w(INT TERM KILL).each do | sig |
           Signal.trap(sig) do
+            @thread_pool.shutdown if @thread_pool
             running = false
           end
         end
@@ -49,10 +53,18 @@ module Rack
               env[key] = val
             end
 
-            status, headers, rack_response = app.call(env)
-            body = ''
-            rack_response.each { |b| body << b }
-            conn.reply(req, body, status, headers)
+            responder = lambda do |_req, _env|
+              status, headers, rack_response = app.call(_env)
+              body = ''
+              rack_response.each { |b| body << b }
+              conn.reply(_req, body, status, headers)
+            end
+
+            if options[:threaded]
+              @thread_pool.schedule(req.dup, env.dup, &responder)
+            else
+              responder.call(req, env)
+            end
           end
         rescue ::Mongrel2::ConnectionDiedError => e
           conn.close
