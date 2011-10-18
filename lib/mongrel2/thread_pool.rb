@@ -38,12 +38,12 @@ class ThreadPool
   # too low, as then you won‚Äôt be able to do as many things concurrently.
   # However, if you make it too high Ruby will spend too much time switching
   # between threads, and that will also degrade performance!
-  def initialize(size)
+  def initialize(size, opts={})
     # Before we do anything else, we need to store some information about
     # our pool. `@size` is useful later, when we want to shut our pool down,
     # and `@jobs` is the heart of our pool that allows us to schedule work.
     @size = size
-    @jobs = Queue.new
+    @jobs = opts[:sized] ? SizedQueue.new(size) : Queue.new
     
     # #### Creating our pool of threads
     # Once preparation is done, it‚Äôs time to create our pool of threads.

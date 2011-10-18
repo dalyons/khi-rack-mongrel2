@@ -16,7 +16,9 @@ module Rack
 
         running = true
 
-        @thread_pool = ThreadPool.new(options[:pool_size] || 10) if options[:threaded]
+        #init a thread pool - ':sized => true' means that once we hit :pool_size active requests,
+        #we will block & stop pulling requests off the mongrel socket.
+        @thread_pool = ThreadPool.new(options[:pool_size] || 10, :sized => true) if options[:threaded]
 
         %w(INT TERM KILL).each do | sig |
           Signal.trap(sig) do

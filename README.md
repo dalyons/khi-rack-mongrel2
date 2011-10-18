@@ -6,6 +6,8 @@
 
   Pass :pool_size => int to run() options to control the thread pool size(default 10).
 
+  Once pool is full of active handler threads, handler will block & not accept further zmq messages.
+
 # khi-rack-mongrel2
 
 The rack-mongrel2 gem was supposed to be "the only Mongrel2 Rack handler you'll ever need." Unfortunately, its original author hasn't done a lot of work with Mongrel2 or ØMQ, so parts of it made assumptions which just didn't work in actual production environments. He also seems to be pretty lazy about fixing obvious bugs which make the gem flat out unusable, and I've got work to do, so here's a fork.
