@@ -59,6 +59,7 @@ module Rack
               status, headers, rack_response = app.call(_env)
               body = ''
               rack_response.each { |b| body << b }
+              rack_response.close if rack_response.respond_to?(:close)
               conn.reply(_req, body, status, headers)
             end
 
