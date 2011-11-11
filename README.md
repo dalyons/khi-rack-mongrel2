@@ -1,5 +1,7 @@
 # fork notes
 
+My version actually works with rails 3.0+!  (the original version caused thread deadlocks in rack due to unclosed rack responses)
+
 1. Added preliminary threaded handler support, to process multiple requests per worker.
 
   Pass :threaded => true to the run() options to enable threaded dispatch.
